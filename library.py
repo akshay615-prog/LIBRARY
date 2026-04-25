@@ -1,74 +1,82 @@
+import datetime
 
-# NEW LIBRARY
+library = {}
 
-books=[]
-issued_books=[]
+def add_book():
+    name = input("Enter Book Name: ")
+    if name in library:
+        print("Book already exists")
+    else:
+        library[name] = {"issued": False, "student": "", "issue_date": None, "duration": 0}
+        print("Book Added")
 
-def add_books():
-    name=input("Enter The Book Name: ")
-    books.append(name)
-    print("✅",name,"is added")
-
-def show_books():
-    if len(books)==0:
-        print("⚠️ No books available")
+def view_books():
+    if not library:
+        print("No books available")
         return
-    else:
-        print("\n📖 Available Books")
-        print("---------------------")
-        i=1
-        for b in books:
-            print(i,".",b)
-            i+=1
+    print("\nBooks:")
+    for book, data in library.items():
+        status = "Issued" if data["issued"] else "Available"
+        print(f"{book} - {status}")
 
-def issue_books():
-    if len(books)==0:
-        print("⚠️ No Books available")
-    else:
-        show_books()
-        name=input("Enter the book name: ")
-        if name in books:
-            books.remove(name)
-            issued_books.append(name)
-            print("📕",name,"book issued")
-        else:
-            print("❌",name,"is not available")
+def issue_book():
+    name = input("Enter Book Name: ")
+    if name not in library:
+        print("Book not found")
+        return
+    if library[name]["issued"]:
+        print("Already issued")
+        return
+    student = input("Enter Student Name: ")
+    duration = int(input("Enter Duration (days): "))
+    library[name]["issued"] = True
+    library[name]["student"] = student
+    library[name]["issue_date"] = datetime.date.today()
+    library[name]["duration"] = duration
+    print("Book Issued")
 
-def return_books():
-    name=input("Enter the issued book you want to return: ")
-    if name in issued_books:
-        issued_books.remove(name)
-        books.append(name)
-        print("📗",name,"book is returned")
-    else:
-        print("❌",name,"was not issued")
+def return_book():
+    name = input("Enter Book Name: ")
+    if name not in library:
+        print("Book not found")
+        return
+    if not library[name]["issued"]:
+        print("Book was not issued")
+        return
+    issue_date = library[name]["issue_date"]
+    duration = library[name]["duration"]
+    today = datetime.date.today()
+    days_used = (today - issue_date).days
+    fine = 0
+    if days_used > duration:
+        late_days = days_used - duration
+        weeks = (late_days // 7) + 1
+        for i in range(weeks):
+            fine += (i + 1) * 10
+    print(f"Days Used: {days_used}")
+    print(f"Fine: ₹{fine}")
+    library[name] = {"issued": False, "student": "", "issue_date": None, "duration": 0}
+    print("Book Returned")
 
-def library():
+def menu():
     while True:
-        print("\n==============================")
-        print("📚 LIBRARY MENU")
-        print("==============================")
-        print("1.Add Books")
-        print("2.Show Books")
-        print("3.Issue Books")
-        print("4.Return Books")
-        print("5.Exit")
-        print("==============================")
-
-        choice=int(input("Enter your choice: "))
-
-        if choice==1:
-            add_books()
-        elif choice==2:
-            show_books()
-        elif choice==3:
-            issue_books()
-        elif choice==4:
-            return_books()
-        elif choice==5:
-            print("👋 Thank you!")
+        print("\n1 Add Book")
+        print("2 View Books")
+        print("3 Issue Book")
+        print("4 Return Book")
+        print("5 Exit")
+        choice = input("Enter choice: ")
+        if choice == "1":
+            add_book()
+        elif choice == "2":
+            view_books()
+        elif choice == "3":
+            issue_book()
+        elif choice == "4":
+            return_book()
+        elif choice == "5":
             break
         else:
-            print("❌ Invalid choice")
+            print("Invalid choice")
 
-library()
+menu()
